@@ -37,7 +37,7 @@ class ZoomNativeSdkPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Meet
             }
             "joinMeeting" -> {
                 val arguments: Map<String, String>? = call.arguments<Map<String, String>>()
-                joinMeeting(arguments?.get("meetingNumber"), arguments?.get("meetingPassword"))
+                joinMeeting(arguments?.get("meetingNumber"), arguments?.get("meetingPassword"), arguments?.get("displayName"))
                 Log.d("TAG", "onMethodCall: $arguments")
                 result.success(true)
             }
@@ -61,17 +61,19 @@ class ZoomNativeSdkPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Meet
         zoomSDK?.initialize(activity, this, initParams)
     }
 
-    fun joinMeeting(meetingId: String?, meetingPassword: String?) {
+    fun joinMeeting(meetingId: String?, meetingPassword: String?, displayName: String?) {
 
         val meetingService = zoomSDK?.meetingService
         val opts = JoinMeetingOptions()
 
         opts.no_invite = true
-        opts.no_driving_mode = false
+        opts.no_driving_mode = true
         opts.no_dial_in_via_phone = true
-        opts.no_disconnect_audio = false
+        opts.no_disconnect_audio = true
+        opts.no_bottom_toolbar = false
+        opts.no_share = false
         opts.no_audio = false
-        opts.no_titlebar = true
+        opts.no_titlebar = false
         val view_options = true
         if (view_options) {
             opts.meeting_views_options =
@@ -81,6 +83,7 @@ class ZoomNativeSdkPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Meet
         val params = JoinMeetingParams()
         params.meetingNo = meetingId
         params.password = meetingPassword
+        params.displayName = displayName
 
         meetingService?.joinMeetingWithParams(activity, params, opts)
     }
